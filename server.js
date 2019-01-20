@@ -1,14 +1,17 @@
 'use strict';
 const mongoose = require("mongoose");
 
-const Bcrypt = require('bcrypt');
+
 const Hapi=require('hapi');
 const AuthBearer = require('hapi-auth-bearer-token');
 const database = require('./database');
-const user = require('./user');
+const user = require('./model/user');
+const game = require('./model/game');
 
 const login = require('./routes/login')
 const signup = require('./routes/signup')
+const getGames = require('./routes/getGames')
+const addGame = require('./routes/addgame')
 
 
 // Create a server with a host and port
@@ -70,7 +73,7 @@ const start = async () => {
     method: 'GET',
     path: '/',
     options: {
-      auth: 'token'
+
     },
     handler:(request, h)=>{
       console.log("h",h.request.auth)
@@ -86,6 +89,23 @@ const start = async () => {
     handler:signup
   });
 
+  server.route({
+    method: 'POST',
+    path: '/addgame',
+    options: {
+      auth: 'token'
+    },
+    handler:addGame
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/getgames',
+    options: {
+      auth: 'token'
+    },
+    handler:getGames
+  });
 
 
   await server.start();

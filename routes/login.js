@@ -1,4 +1,4 @@
-const userDB = require('../user');
+const userDB = require('../model/user');
 
 const login = async (request, h) => {
   const requestedUser = h.request.auth.credentials
