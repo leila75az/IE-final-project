@@ -1,34 +1,32 @@
 'use strict';
+const mongoose = require("mongoose");
+
 const Bcrypt = require('bcrypt');
 const Hapi=require('hapi');
 const AuthBearer = require('hapi-auth-bearer-token');
+const database = require('./database');
+const user = require('./user');
+
+const login = require('./routes/login')
+const signup = require('./routes/signup')
+
+
 // Create a server with a host and port
 const server=Hapi.server({
   host:'localhost',
   port:8000
 });
 
-const users = {
-  john: {
-    username: 'john',
-    password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm',   // 'secret'
-    name: 'John Doe',
-    id: '2133d32a',
-    token:'sdfsdfsdfkjskjdfkjskdfjsdfsdfsdf'
-  }
-};
-
 const validate = async (request, username, password) => {
 
-  const user = users[username];
-  if (!user) {
+  if (!username || !password) {
     return { credentials: null, isValid: false };
   }
 
-  const isValid = await Bcrypt.compare(password, user.password);
-  const credentials = { id: user.id, name: user.name , token: user.token};
+  // const isValid = await Bcrypt.compare(password, user.password);
+  const credentials = { id: username, password: password};
 
-  return { isValid, credentials };
+  return { isValid:true, credentials };
 };
 
 
@@ -65,10 +63,7 @@ const start = async () => {
     options: {
       auth: 'simple'
     },
-    handler:(request, h)=>{
-      console.log("h",h.request.auth)
-      return {"status":"200","token":h.request.auth.credentials.token}
-    }
+    handler:login
   });
 
   server.route({
@@ -81,6 +76,14 @@ const start = async () => {
       console.log("h",h.request.auth)
       return {"status":"200","token":h.request.auth.credentials.token}
     }
+  });
+
+  server.route({
+    method: 'POST',
+    path: '/signup',
+    options: {
+    },
+    handler:signup
   });
 
 
